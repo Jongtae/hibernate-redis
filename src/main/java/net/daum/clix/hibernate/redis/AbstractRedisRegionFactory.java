@@ -1,8 +1,13 @@
-package net.daum.clix.hibernate.redis.region;
+package net.daum.clix.hibernate.redis;
 
 import org.hibernate.cache.*;
 import org.hibernate.cache.access.AccessType;
 import org.hibernate.cfg.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.Properties;
 
@@ -14,29 +19,40 @@ import java.util.Properties;
  * To change this template use File | Settings | File Templates.
  */
 public class AbstractRedisRegionFactory implements RegionFactory {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private JedisPool pool;
+
+    private Properties properties;
+    private Settings settings;
+
     @Override
     public void start(Settings settings, Properties properties) throws CacheException {
-        //To change body of implemented methods use File | Settings | File Templates.
+        this.settings = settings;
+        this.properties = properties;
+        logger.info("Starting MemcachedClient...");
+        pool = new JedisPool(new JedisPoolConfig(), "localhost");
     }
 
     @Override
     public void stop() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        pool.destroy();
     }
 
     @Override
     public boolean isMinimalPutsEnabledByDefault() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return true;
     }
 
     @Override
     public AccessType getDefaultAccessType() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return AccessType.READ_WRITE;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public long nextTimestamp() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+        return System.currentTimeMillis() / 100;
     }
 
     @Override
@@ -58,4 +74,10 @@ public class AbstractRedisRegionFactory implements RegionFactory {
     public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    private RedisCache getCache(String regionName)
+    {
+        return new Cache(pool, regionName);
+    }
+
 }
