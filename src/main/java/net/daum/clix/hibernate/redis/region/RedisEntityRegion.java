@@ -1,37 +1,39 @@
 package net.daum.clix.hibernate.redis.region;
 
 import net.daum.clix.hibernate.redis.RedisCache;
+import net.daum.clix.hibernate.redis.strategy.ReadOnlyRedisEntityRegionAccessStrategy;
+import net.daum.clix.hibernate.redis.strategy.ReadWriteRedisEntityRegionAccessStrategy;
+
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.EntityRegion;
 import org.hibernate.cache.access.AccessType;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
 
-/**
- * Created with IntelliJ IDEA.
- * User: jtlee
- * Date: 7/27/12
- * Time: 3:27 PM
- * To change this template use File | Settings | File Templates.
- */
 public class RedisEntityRegion extends AbstractRedisRegion implements EntityRegion {
 
-    protected RedisEntityRegion(RedisCache cache) {
-        super(cache);
-    }
+	public RedisEntityRegion(RedisCache cache) {
+		super(cache);
+	}
 
-    @Override
-    public EntityRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+	@Override
+	public EntityRegionAccessStrategy buildAccessStrategy(AccessType accessType) throws CacheException {
+		if (AccessType.READ_WRITE.equals(accessType)) {
+			return new ReadWriteRedisEntityRegionAccessStrategy(this);
+		} else if (AccessType.READ_ONLY.equals(accessType)) {
+			return new ReadOnlyRedisEntityRegionAccessStrategy(this);
+		}
 
-    @Override
-    public boolean isTransactionAware() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+		throw new IllegalAccessError("RedisEntityRegion#buildAccessStrategy has not implemented yet!!");
+	}
 
-    @Override
-    public CacheDataDescription getCacheDataDescription() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
+	@Override
+	public boolean isTransactionAware() {
+		throw new IllegalAccessError("RedisEntityRegion#isTransactionAware has not implemented yet!!");
+	}
+
+	@Override
+	public CacheDataDescription getCacheDataDescription() {
+		throw new IllegalAccessError("RedisEntityRegion#getCacheDataDescription has not implemented yet!!");
+	}
 }

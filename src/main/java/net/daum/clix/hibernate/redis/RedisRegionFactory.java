@@ -1,11 +1,32 @@
 package net.daum.clix.hibernate.redis;
 
-/**
- * Created with IntelliJ IDEA.
- * User: jtlee
- * Date: 7/27/12
- * Time: 1:55 PM
- * To change this template use File | Settings | File Templates.
- */
-public class RedisRegionFactory extends AbstractRedisRegionFactory{
+import java.util.Properties;
+
+import org.hibernate.cache.CacheException;
+import org.hibernate.cfg.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+
+public class RedisRegionFactory extends AbstractRedisRegionFactory {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
+	public RedisRegionFactory(Properties properties) {
+		this.properties = properties;
+	}
+
+	@Override
+	public void start(Settings settings, Properties properties) throws CacheException {
+		this.settings = settings;
+		this.properties = properties;
+		logger.info("Initializing RedisClient(Jedis)...");
+		this.pool = new JedisPool(new JedisPoolConfig(), "localhost");
+	}
+
+	@Override
+	public void stop() {
+		this.pool.destroy();
+	}
 }

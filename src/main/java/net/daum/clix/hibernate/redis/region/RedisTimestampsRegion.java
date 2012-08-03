@@ -1,11 +1,33 @@
 package net.daum.clix.hibernate.redis.region;
 
-/**
- * Created with IntelliJ IDEA.
- * User: jtlee
- * Date: 7/27/12
- * Time: 3:28 PM
- * To change this template use File | Settings | File Templates.
- */
-public class RedisTimestampsRegion {
+import net.daum.clix.hibernate.redis.RedisCache;
+
+import org.hibernate.cache.CacheException;
+import org.hibernate.cache.TimestampsRegion;
+
+public class RedisTimestampsRegion extends AbstractRedisRegion implements TimestampsRegion {
+
+	public RedisTimestampsRegion(RedisCache cache) {
+		super(cache);
+	}
+
+	@Override
+	public Object get(Object key) throws CacheException {
+		return cache.get(key);
+	}
+
+	@Override
+	public void put(Object key, Object value) throws CacheException {
+		cache.put(key, value);
+	}
+
+	@Override
+	public void evict(Object key) throws CacheException {
+		cache.remove(key);
+	}
+
+	@Override
+	public void evictAll() throws CacheException {
+		throw new IllegalAccessError("RedisTimestampsRegion#evictAll has not implemented yet!!");
+	}
 }

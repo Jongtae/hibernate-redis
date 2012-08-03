@@ -1,11 +1,11 @@
 package net.daum.clix.hibernate.redis.region;
 
-import net.daum.clix.hibernate.redis.Cache;
+import java.util.Map;
+
 import net.daum.clix.hibernate.redis.RedisCache;
+
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.Region;
-
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,54 +16,58 @@ import java.util.Map;
  */
 public abstract class AbstractRedisRegion implements Region {
 
-    protected RedisCache cache;
+	protected RedisCache cache;
 
-    protected AbstractRedisRegion(RedisCache cache) {
-        this.cache = cache;
-    }
+	protected AbstractRedisRegion(RedisCache cache) {
+		this.cache = cache;
+	}
 
-    @Override
-    public String getName() {
-        return cache.getRegionName();
-    }
+	@Override
+	public String getName() {
+		return cache.getRegionName();
+	}
 
-    @Override
-    public void destroy() throws CacheException {
-        cache.destroy();
-    }
+	@Override
+	public void destroy() throws CacheException {
+		cache.destroy();
+	}
 
-    @Override
-    public boolean contains(Object key) {
-        return cache.get(key) != null;
-    }
+	@Override
+	public boolean contains(Object key) {
+		return cache.get(key) != null;
+	}
 
-    @Override
-    public long getSizeInMemory() {
-        return cache.getSizeInMemory();
-    }
+	@Override
+	public long getSizeInMemory() {
+		return cache.getSizeInMemory();
+	}
 
-    @Override
-    public long getElementCountInMemory() {
-        return cache.getElementCountInMemory();
-    }
+	@Override
+	public long getElementCountInMemory() {
+		return cache.getElementCountInMemory();
+	}
 
-    @Override
-    public long getElementCountOnDisk() {
-        return cache.getElementCountOnDisk();
-    }
+	@Override
+	public long getElementCountOnDisk() {
+		return cache.getElementCountOnDisk();
+	}
 
-    @Override
-    public Map toMap() {
-        return null;
-    }
+	@Override
+	public Map toMap() {
+		return null;
+	}
 
-    @Override
-    public long nextTimestamp() {
-        return cache.nextTimestamp();
-    }
+	@Override
+	public long nextTimestamp() {
+		return cache.nextTimestamp();
+	}
 
-    @Override
-    public int getTimeout() {
-        return cache.getTimeout();
-    }
+	@Override
+	public int getTimeout() {
+		return cache.getTimeout();
+	}
+
+	public RedisCache getCache() {
+		return cache;
+	}
 }
