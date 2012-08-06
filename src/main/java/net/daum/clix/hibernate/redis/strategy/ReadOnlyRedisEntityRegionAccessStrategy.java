@@ -15,7 +15,7 @@ public class ReadOnlyRedisEntityRegionAccessStrategy implements EntityRegionAcce
 
 	public ReadOnlyRedisEntityRegionAccessStrategy(RedisEntityRegion region) {
 		this.region = region;
-		this.cache = region.getCache();
+		this.cache = region.getRedisCache();
 	}
 
 	@Override

@@ -1,14 +1,17 @@
 package net.daum.clix.hibernate.redis.region;
 
+import java.util.Properties;
+
 import net.daum.clix.hibernate.redis.RedisCache;
+import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.QueryResultsRegion;
 
-public class RedisQueryResultRegion extends AbstractRedisRegion implements QueryResultsRegion {
+public class RedisQueryResultRegion extends RedisRegion implements QueryResultsRegion {
 
-	public RedisQueryResultRegion(RedisCache cache) {
-		super(cache);
+	public RedisQueryResultRegion(RedisAccessStrategyFactory accessStrategyFactory, RedisCache cache, Properties properties) {
+		super(accessStrategyFactory, cache, properties);
 	}
 
 	@Override
@@ -28,6 +31,6 @@ public class RedisQueryResultRegion extends AbstractRedisRegion implements Query
 
 	@Override
 	public void evictAll() throws CacheException {
-		throw new IllegalAccessError("RedisQueryResultRegion#evictAll has not implemented yet!!");
+		throw new UnsupportedOperationException("RedisQueryResultRegion#evictAll has not implemented yet!!");
 	}
 }

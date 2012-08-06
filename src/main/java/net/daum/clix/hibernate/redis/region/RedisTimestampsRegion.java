@@ -1,14 +1,17 @@
 package net.daum.clix.hibernate.redis.region;
 
+import java.util.Properties;
+
 import net.daum.clix.hibernate.redis.RedisCache;
+import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.TimestampsRegion;
 
-public class RedisTimestampsRegion extends AbstractRedisRegion implements TimestampsRegion {
+public class RedisTimestampsRegion extends RedisRegion implements TimestampsRegion {
 
-	public RedisTimestampsRegion(RedisCache cache) {
-		super(cache);
+	public RedisTimestampsRegion(RedisAccessStrategyFactory accessStrategyFactory, RedisCache cache, Properties properties) {
+		super(accessStrategyFactory, cache, properties);
 	}
 
 	@Override
@@ -28,6 +31,6 @@ public class RedisTimestampsRegion extends AbstractRedisRegion implements Timest
 
 	@Override
 	public void evictAll() throws CacheException {
-		throw new IllegalAccessError("RedisTimestampsRegion#evictAll has not implemented yet!!");
+		throw new UnsupportedOperationException("RedisTimestampsRegion#evictAll has not implemented yet!!");
 	}
 }

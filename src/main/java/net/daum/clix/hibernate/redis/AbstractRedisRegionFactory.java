@@ -2,10 +2,13 @@ package net.daum.clix.hibernate.redis;
 
 import java.util.Properties;
 
+import net.daum.clix.hibernate.redis.jedis.JedisCacheImpl;
 import net.daum.clix.hibernate.redis.region.RedisCollectionRegion;
 import net.daum.clix.hibernate.redis.region.RedisEntityRegion;
 import net.daum.clix.hibernate.redis.region.RedisQueryResultRegion;
 import net.daum.clix.hibernate.redis.region.RedisTimestampsRegion;
+import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
+import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactoryImpl;
 
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
@@ -20,6 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPool;
 
+/**
+ * @author jtlee
+ * @author 84june
+ */
 abstract class AbstractRedisRegionFactory implements RegionFactory {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -27,7 +34,13 @@ abstract class AbstractRedisRegionFactory implements RegionFactory {
 	protected JedisPool pool;
 
 	protected Properties properties;
+
 	protected Settings settings;
+
+	/**
+	 * {@link RedisAccessStrategyFactory} for creating various access strategies
+	 */
+	private final RedisAccessStrategyFactory accessStrategyFactory = new RedisAccessStrategyFactoryImpl();
 
 	@Override
 	public boolean isMinimalPutsEnabledByDefault() {
@@ -46,26 +59,27 @@ abstract class AbstractRedisRegionFactory implements RegionFactory {
 
 	@Override
 	public EntityRegion buildEntityRegion(String regionName, Properties properties, CacheDataDescription metadata) throws CacheException {
-		return new RedisEntityRegion(getCache(regionName));
+		return new RedisEntityRegion(accessStrategyFactory, getRedisCache(regionName), properties, metadata, settings);
 	}
 
 	@Override
-	public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata) throws CacheException {
-		return new RedisCollectionRegion(getCache(regionName));
+	public CollectionRegion buildCollectionRegion(String regionName, Properties properties, CacheDataDescription metadata)
+			throws CacheException {
+		return new RedisCollectionRegion(accessStrategyFactory, getRedisCache(regionName), properties, metadata, settings);
 	}
 
 	@Override
 	public QueryResultsRegion buildQueryResultsRegion(String regionName, Properties properties) throws CacheException {
-		return new RedisQueryResultRegion(getCache(regionName));
+		return new RedisQueryResultRegion(accessStrategyFactory, getRedisCache(regionName), properties);
 	}
 
 	@Override
 	public TimestampsRegion buildTimestampsRegion(String regionName, Properties properties) throws CacheException {
-		return new RedisTimestampsRegion(getCache(regionName));
+		return new RedisTimestampsRegion(accessStrategyFactory, getRedisCache(regionName), properties);
 	}
 
-	private RedisCache getCache(String regionName) {
-		return new Cache(pool, regionName);
+	private RedisCache getRedisCache(String regionName) {
+		return new JedisCacheImpl(pool, regionName);
 	}
 
 }
