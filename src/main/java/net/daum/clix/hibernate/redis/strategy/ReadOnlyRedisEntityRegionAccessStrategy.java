@@ -1,39 +1,39 @@
 package net.daum.clix.hibernate.redis.strategy;
 
-import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.region.RedisEntityRegion;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.EntityRegion;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
 import org.hibernate.cache.access.SoftLock;
+import org.hibernate.cfg.Settings;
 
-public class ReadOnlyRedisEntityRegionAccessStrategy implements EntityRegionAccessStrategy {
+public class ReadOnlyRedisEntityRegionAccessStrategy extends AbstractRedisAccessStrategy<RedisEntityRegion>
+		implements EntityRegionAccessStrategy {
 
-	private EntityRegion region;
-	private RedisCache cache;
-
-	public ReadOnlyRedisEntityRegionAccessStrategy(RedisEntityRegion region) {
-		this.region = region;
-		this.cache = region.getRedisCache();
+	public ReadOnlyRedisEntityRegionAccessStrategy(RedisEntityRegion region, Settings settings) {
+		super(region, settings);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public EntityRegion getRegion() {
 		return region;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object get(Object key, long txTimestamp) throws CacheException {
 		return cache.get(key);
 	}
 
-	@Override
-	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version) throws CacheException {
-		cache.put(key, value);
-		return true;
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) throws CacheException {
 		if (minimalPutOverride && region.contains(key)) {
@@ -44,62 +44,55 @@ public class ReadOnlyRedisEntityRegionAccessStrategy implements EntityRegionAcce
 		}
 	}
 
+	/**
+	 * Throws UnsupportedOperationException since this cache is read-only
+	 *
+	 * @throws UnsupportedOperationException always
+	 */
 	@Override
-	public SoftLock lockItem(Object key, Object version) throws CacheException {
-		return null;
+	public SoftLock lockItem(Object key, Object version) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Can't write to a readonly object");
 	}
 
-	@Override
-	public SoftLock lockRegion() throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#lockRegion has not implemented yet!!");
-	}
-
-	@Override
+	/**
+	 * A no-op since this cache is read-only
+	 */
 	public void unlockItem(Object key, SoftLock lock) throws CacheException {
+		//throw new UnsupportedOperationException("Can't write to a readonly object");
 	}
 
-	@Override
-	public void unlockRegion(SoftLock lock) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#unlockRegion has not implemented yet!!");
-	}
-
-	@Override
+	/**
+	 * This cache is asynchronous hence a no-op
+	 */
 	public boolean insert(Object key, Object value, Object version) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#insert has not implemented yet!!");
+		return false;
 	}
 
-	@Override
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#afterInsert has not implemented yet!!");
+		cache.put(key, value);
+		return true;
 	}
 
-	@Override
-	public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#update has not implemented yet!!");
+	/**
+	 * Throws UnsupportedOperationException since this cache is read-only
+	 *
+	 * @throws UnsupportedOperationException always
+	 */
+	public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Can't write to a readonly object");
 	}
 
-	@Override
-	public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#afterUpdate has not implemented yet!!");
-	}
-
-	@Override
-	public void remove(Object key) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#remove has not implemented yet!!");
-	}
-
-	@Override
-	public void removeAll() throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#removeAll has not implemented yet!!");
-	}
-
-	@Override
-	public void evict(Object key) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#evict has not implemented yet!!");
-	}
-
-	@Override
-	public void evictAll() throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisEntityRegionAccessStrategy#evictAll has not implemented yet!!");
+	/**
+	 * Throws UnsupportedOperationException since this cache is read-only
+	 *
+	 * @throws UnsupportedOperationException always
+	 */
+	public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock)
+			throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Can't write to a readonly object");
 	}
 }
+

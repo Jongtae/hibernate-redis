@@ -1,21 +1,18 @@
 package net.daum.clix.hibernate.redis.strategy;
 
-import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.region.RedisEntityRegion;
 
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.EntityRegion;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
 import org.hibernate.cache.access.SoftLock;
+import org.hibernate.cfg.Settings;
 
-public class NonStrictReadWriteRedisEntityRegionAccessStrategy implements EntityRegionAccessStrategy {
+public class NonStrictReadWriteRedisEntityRegionAccessStrategy extends AbstractRedisAccessStrategy<RedisEntityRegion>
+		implements EntityRegionAccessStrategy {
 
-	private EntityRegion region;
-	private RedisCache cache;
-
-	public NonStrictReadWriteRedisEntityRegionAccessStrategy(RedisEntityRegion region) {
-		this.region = region;
-		this.cache = region.getRedisCache();
+	public NonStrictReadWriteRedisEntityRegionAccessStrategy(RedisEntityRegion region, Settings settings) {
+		super(region, settings);
 	}
 
 	@Override
@@ -29,74 +26,70 @@ public class NonStrictReadWriteRedisEntityRegionAccessStrategy implements Entity
 	}
 
 	@Override
-	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version) throws CacheException {
-		cache.put(key, value);
-		return true;
+	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
+			throws CacheException {
+		if (minimalPutOverride && region.contains(key)) {
+			return false;
+		} else {
+			cache.put(key, value);
+			return true;
+		}
 	}
 
-	@Override
-	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) throws CacheException {
-		cache.put(key, value);
-		return true;
-	}
-
+	/**
+	 * Since this is a non-strict read/write strategy item locking is not used.
+	 */
 	@Override
 	public SoftLock lockItem(Object key, Object version) throws CacheException {
 		return null;
 	}
 
-	@Override
-	public SoftLock lockRegion() throws CacheException {
-		return null;
-	}
-
+	/**
+	 * Since this is a non-strict read/write strategy item locking is not used.
+	 */
 	@Override
 	public void unlockItem(Object key, SoftLock lock) throws CacheException {
+		region.remove(key);
 	}
 
-	@Override
-	public void unlockRegion(SoftLock lock) throws CacheException {
-	}
-
+	/**
+	 * Returns <code>false</code> since this is an asynchronous cache access strategy.
+	 */
 	@Override
 	public boolean insert(Object key, Object value, Object version) throws CacheException {
 		return false;
 	}
 
+	/**
+	 * Returns <code>false</code> since this is a non-strict read/write cache access strategy
+	 */
 	@Override
 	public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
-		cache.put(key, value);
-		return true;
-	}
-
-	@Override
-	public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws CacheException {
 		return false;
 	}
 
+	/**
+	 * Removes the entry since this is a non-strict read/write cache strategy.
+	 */
 	@Override
-	public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock) throws CacheException {
-		cache.put(key, value);
-		return true;
+	public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws CacheException {
+		remove(key);
+		return false;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock) throws CacheException {
+		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void remove(Object key) throws CacheException {
 		cache.remove(key);
-	}
-
-	@Override
-	public void removeAll() throws CacheException {
-		throw new IllegalAccessError("NonStrictReadWriteRedisEntityRegionAccessStrategy#removeAll has not implemented yet!!");
-	}
-
-	@Override
-	public void evict(Object key) throws CacheException {
-		cache.remove(key);
-	}
-
-	@Override
-	public void evictAll() throws CacheException {
-		throw new IllegalAccessError("NonStrictReadWriteRedisEntityRegionAccessStrategy#evictAll has not implemented yet!!");
 	}
 }

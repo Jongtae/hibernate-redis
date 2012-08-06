@@ -21,7 +21,7 @@ public abstract class RedisRegion implements Region {
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	private static final String CACHE_LOCK_TIMEOUT_PROPERTY = "net.daum.clix.hibernate.redis.cache_lock_timeout";
-	private static final int DEFAULT_CACHE_LOCK_TIMEOUT = 60000;
+	private static final int DEFAULT_CACHE_LOCK_TIMEOUT = 1000;
 
 	/**
 	 * RedisCache instance backing this Hibernate data region.

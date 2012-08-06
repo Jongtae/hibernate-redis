@@ -44,5 +44,13 @@ public class RedisTransactionalRegion extends RedisRegion implements Transaction
 	public CacheDataDescription getCacheDataDescription() {
 		return metadata;
 	}
+
+	public Settings getSettings() {
+		return settings;
+	}
+
+	public final void remove(Object key) {
+		cache.remove(key);
+	}
 }
 

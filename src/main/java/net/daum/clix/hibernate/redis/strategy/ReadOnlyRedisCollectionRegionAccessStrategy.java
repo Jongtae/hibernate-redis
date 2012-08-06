@@ -6,72 +6,63 @@ import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CollectionRegion;
 import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cache.access.SoftLock;
+import org.hibernate.cfg.Settings;
 
 /**
  * @author jtlee
+ * @author 84june
  */
-public class ReadOnlyRedisCollectionRegionAccessStrategy implements CollectionRegionAccessStrategy {
-	public ReadOnlyRedisCollectionRegionAccessStrategy(RedisCollectionRegion redisCollectionRegion) {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#ReadOnlyRedisCollectionRegionAccessStrategy has not implemented yet!!");
+public class ReadOnlyRedisCollectionRegionAccessStrategy extends AbstractRedisAccessStrategy<RedisCollectionRegion>
+		implements CollectionRegionAccessStrategy {
+
+	public ReadOnlyRedisCollectionRegionAccessStrategy(RedisCollectionRegion region, Settings settings) {
+		super(region, settings);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CollectionRegion getRegion() {
 		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#getRegion has not implemented yet!!");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object get(Object key, long txTimestamp) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#get has not implemented yet!!");
+		return cache.get(key);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#putFromLoad has not implemented yet!!");
+	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
+			throws CacheException {
+		if (minimalPutOverride && region.contains(key)) {
+			return false;
+		} else {
+			cache.put(key, value);
+			return true;
+		}
 	}
 
+	/**
+	 * Throws UnsupportedOperationException since this cache is read-only
+	 *
+	 * @throws UnsupportedOperationException always
+	 */
 	@Override
-	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#putFromLoad has not implemented yet!!");
+	public SoftLock lockItem(Object key, Object version) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("Can't write to a readonly object");
 	}
 
-	@Override
-	public SoftLock lockItem(Object key, Object version) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#lockItem has not implemented yet!!");
-	}
-
-	@Override
-	public SoftLock lockRegion() throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#lockRegion has not implemented yet!!");
-	}
-
+	/**
+	 * A no-op since this cache is read-only
+	 */
 	@Override
 	public void unlockItem(Object key, SoftLock lock) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#unlockItem has not implemented yet!!");
-	}
-
-	@Override
-	public void unlockRegion(SoftLock lock) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#unlockRegion has not implemented yet!!");
-	}
-
-	@Override
-	public void remove(Object key) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#remove has not implemented yet!!");
-	}
-
-	@Override
-	public void removeAll() throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#removeAll has not implemented yet!!");
-	}
-
-	@Override
-	public void evict(Object key) throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#evict has not implemented yet!!");
-	}
-
-	@Override
-	public void evictAll() throws CacheException {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#evictAll has not implemented yet!!");
 	}
 }
