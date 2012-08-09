@@ -71,8 +71,6 @@ abstract class AbstractRedisAccessStrategy<T extends RedisTransactionalRegion> {
 	}
 
 	/**
-	 * TODO:: Ehcache's implementation of this function is clear whole region.(what should do?)
-	 *
 	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#unlockRegion(org.hibernate.cache.access.SoftLock)
 	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#unlockRegion(org.hibernate.cache.access.SoftLock)
 	 */

@@ -24,7 +24,7 @@ public class ReadOnlyRedisCollectionRegionAccessStrategy extends AbstractRedisAc
 	 */
 	@Override
 	public CollectionRegion getRegion() {
-		throw new IllegalAccessError("ReadOnlyRedisCollectionRegionAccessStrategy#getRegion has not implemented yet!!");
+		return region;
 	}
 
 	/**
