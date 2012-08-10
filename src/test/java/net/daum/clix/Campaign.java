@@ -19,33 +19,33 @@ import javax.persistence.Id;
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 @Entity
 public class Campaign {
-    private Long seq;
-    private String name;
-    private Long budget;
+	private Long seq;
+	private String name;
+	private Long budget;
 
-    @Id
-    @GeneratedValue
-    public Long getSeq() {
-        return seq;
-    }
+	@Id
+	@GeneratedValue
+	public Long getSeq() {
+		return seq;
+	}
 
-    public void setSeq(Long seq) {
-        this.seq = seq;
-    }
+	public void setSeq(Long seq) {
+		this.seq = seq;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public Long getBudget() {
-        return budget;
-    }
+	public Long getBudget() {
+		return budget;
+	}
 
-    public void setBudget(Long budget) {
-        this.budget = budget;
-    }
+	public void setBudget(Long budget) {
+		this.budget = budget;
+	}
 }

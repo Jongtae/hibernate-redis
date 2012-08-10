@@ -1,15 +1,18 @@
 package net.daum.clix.hibernate.redis.strategy;
 
 import net.daum.clix.hibernate.redis.region.RedisEntityRegion;
-
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.EntityRegion;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReadOnlyRedisEntityRegionAccessStrategy extends AbstractRedisAccessStrategy<RedisEntityRegion>
 		implements EntityRegionAccessStrategy {
+
+	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	public ReadOnlyRedisEntityRegionAccessStrategy(RedisEntityRegion region, Settings settings) {
 		super(region, settings);
@@ -28,6 +31,7 @@ public class ReadOnlyRedisEntityRegionAccessStrategy extends AbstractRedisAccess
 	 */
 	@Override
 	public Object get(Object key, long txTimestamp) throws CacheException {
+		LOG.debug("called get by K:{}", key);
 		return cache.get(key);
 	}
 
@@ -36,6 +40,7 @@ public class ReadOnlyRedisEntityRegionAccessStrategy extends AbstractRedisAccess
 	 */
 	@Override
 	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) throws CacheException {
+		LOG.debug("called put by K:{}, V:{}", key, value);
 		if (minimalPutOverride && region.contains(key)) {
 			return false;
 		} else {

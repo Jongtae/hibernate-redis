@@ -1,7 +1,6 @@
 package net.daum.clix.hibernate.redis.jedis;
 
 import net.daum.clix.hibernate.redis.RedisCache;
-
 import org.hibernate.cache.CacheException;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
@@ -14,28 +13,26 @@ import redis.clients.jedis.JedisPool;
  */
 public class JedisCacheImpl implements RedisCache {
 
-	private JedisPool pool;
+	private JedisPool jedisPool;
+
+	private Jedis jedis;
 
 	private String regionName;
 
-	public JedisCacheImpl(JedisPool pool, String regionName) {
-		this.pool = pool;
+	public JedisCacheImpl(JedisPool jedisPool, String regionName) {
+		this.jedisPool = jedisPool;
 		this.regionName = regionName;
+		this.jedis = jedisPool.getResource();
 	}
 
 	@Override
 	public Object get(Object key) throws CacheException {
 		Object o = null;
 
-		Jedis jedis = pool.getResource();
-		try {
-			byte[] k = serializeObject(key.toString());
-			byte[] v = jedis.get(k);
-			if (v != null && v.length > 0) {
-				o = deserializeObject(v);
-			}
-		} finally {
-			pool.returnResource(jedis);
+		byte[] k = serializeObject(key.toString());
+		byte[] v = jedis.get(k);
+		if (v != null && v.length > 0) {
+			o = deserializeObject(v);
 		}
 
 		return o;
@@ -46,39 +43,17 @@ public class JedisCacheImpl implements RedisCache {
 		byte[] k = serializeObject(key.toString());
 		byte[] v = serializeObject(value);
 
-		Jedis jedis = pool.getResource();
-		try {
-			jedis.set(k, v);
-		} finally {
-			pool.returnResource(jedis);
-		}
+		jedis.set(k, v);
 	}
 
 	@Override
 	public void remove(Object key) throws CacheException {
-		Jedis jedis = pool.getResource();
-		try {
-			jedis.del(key.toString());
-		} finally {
-			pool.returnResource(jedis);
-		}
-	}
-
-	@Override
-	public void destroy() throws CacheException {
-		pool.destroy();
+		jedis.del(serializeObject(key.toString()));
 	}
 
 	@Override
 	public boolean exists(String key) {
-		Jedis jedis = pool.getResource();
-		boolean b = false;
-		try {
-			b = jedis.exists(key);
-		} finally {
-			pool.returnResource(jedis);
-		}
-		return b;
+		return jedis.exists(serializeObject(key.toString()));
 	}
 
 //  TODO : Check any concurrency issues around...
@@ -115,6 +90,11 @@ public class JedisCacheImpl implements RedisCache {
 	@Override
 	public long getElementCountOnDisk() {
 		return -1;
+	}
+
+	@Override
+	public void destory() {
+		jedisPool.returnResource(jedis);
 	}
 
 	private byte[] serializeObject(Object obj) {
