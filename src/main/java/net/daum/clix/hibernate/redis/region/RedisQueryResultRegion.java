@@ -1,12 +1,20 @@
 package net.daum.clix.hibernate.redis.region;
 
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import net.daum.clix.hibernate.redis.RedisCache;
+import net.daum.clix.hibernate.redis.aop.QueryKeyIF;
 import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
 
+import org.hibernate.EntityMode;
 import org.hibernate.cache.CacheException;
+import org.hibernate.cache.QueryKey;
 import org.hibernate.cache.QueryResultsRegion;
+import org.hibernate.transform.ResultTransformer;
+import org.hibernate.type.Type;
+import org.springframework.util.StringUtils;
 
 public class RedisQueryResultRegion extends RedisRegion implements QueryResultsRegion {
 
@@ -21,7 +29,12 @@ public class RedisQueryResultRegion extends RedisRegion implements QueryResultsR
 
 	@Override
 	public void put(Object key, Object value) throws CacheException {
-		cache.put(key, value);
+        if(StringUtils.startsWithIgnoreCase(cache.getRegionName(),"@Sorted")){
+            Object[] parameters = ((QueryKeyIF) key).getPositionalParameterValues();
+            System.out.println("====== " + parameters.toString());
+        }else{
+		    cache.put(key, value);
+        }
 	}
 
 	@Override

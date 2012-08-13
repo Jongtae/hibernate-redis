@@ -48,4 +48,9 @@ public class Campaign {
     public void setBudget(Long budget) {
         this.budget = budget;
     }
+
+    @Override
+    public String toString() {
+        return seq + ":\t" + name + ":\t" + budget;
+    }
 }
