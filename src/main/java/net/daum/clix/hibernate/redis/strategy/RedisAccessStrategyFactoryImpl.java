@@ -2,10 +2,11 @@ package net.daum.clix.hibernate.redis.strategy;
 
 import net.daum.clix.hibernate.redis.region.RedisCollectionRegion;
 import net.daum.clix.hibernate.redis.region.RedisEntityRegion;
-
 import org.hibernate.cache.access.AccessType;
 import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of {@link RedisAccessStrategyFactory}
@@ -14,8 +15,12 @@ import org.hibernate.cache.access.EntityRegionAccessStrategy;
  */
 public class RedisAccessStrategyFactoryImpl implements RedisAccessStrategyFactory {
 
+	private final Logger LOG = LoggerFactory.getLogger(getClass());
+
 	@Override
 	public EntityRegionAccessStrategy createEntityRegionAccessStrategy(RedisEntityRegion entityRegion, AccessType accessType) {
+		LOG.debug("called createEntityRegionAccessStrategy by accessType:{}", accessType);
+
 		if (AccessType.READ_ONLY.equals(accessType)) {
 			return new ReadOnlyRedisEntityRegionAccessStrategy(entityRegion, entityRegion.getSettings());
 		} else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {
@@ -27,6 +32,7 @@ public class RedisAccessStrategyFactoryImpl implements RedisAccessStrategyFactor
 
 	@Override
 	public CollectionRegionAccessStrategy createCollectionRegionAccessStrategy(RedisCollectionRegion collectionRegion, AccessType accessType) {
+		LOG.debug("called createCollectionRegionAccessStrategy by accessType:{}", accessType);
 		if (AccessType.READ_ONLY.equals(accessType)) {
 			return new ReadOnlyRedisCollectionRegionAccessStrategy(collectionRegion, collectionRegion.getSettings());
 		} else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {

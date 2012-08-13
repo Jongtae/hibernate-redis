@@ -1,13 +1,13 @@
 package net.daum.clix.hibernate.redis;
 
-import java.util.Properties;
-
 import org.hibernate.cache.CacheException;
 import org.hibernate.cfg.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
+import java.util.Properties;
 
 public class RedisRegionFactory extends AbstractRedisRegionFactory {
 

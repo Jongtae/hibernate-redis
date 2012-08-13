@@ -1,15 +1,18 @@
 package net.daum.clix.hibernate.redis.strategy;
 
 import net.daum.clix.hibernate.redis.region.RedisEntityRegion;
-
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.EntityRegion;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NonStrictReadWriteRedisEntityRegionAccessStrategy extends AbstractRedisAccessStrategy<RedisEntityRegion>
 		implements EntityRegionAccessStrategy {
+
+	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	public NonStrictReadWriteRedisEntityRegionAccessStrategy(RedisEntityRegion region, Settings settings) {
 		super(region, settings);
@@ -22,12 +25,14 @@ public class NonStrictReadWriteRedisEntityRegionAccessStrategy extends AbstractR
 
 	@Override
 	public Object get(Object key, long txTimestamp) throws CacheException {
+		LOG.debug("called get K:{}", key);
 		return cache.get(key);
 	}
 
 	@Override
 	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
 			throws CacheException {
+		LOG.debug("called putFromLoad by K:{}, V:{}", key, value);
 		if (minimalPutOverride && region.contains(key)) {
 			return false;
 		} else {
@@ -73,6 +78,7 @@ public class NonStrictReadWriteRedisEntityRegionAccessStrategy extends AbstractR
 	 */
 	@Override
 	public boolean update(Object key, Object value, Object currentVersion, Object previousVersion) throws CacheException {
+		LOG.debug("called update by K:{}, V:{}", key, value);
 		remove(key);
 		return false;
 	}

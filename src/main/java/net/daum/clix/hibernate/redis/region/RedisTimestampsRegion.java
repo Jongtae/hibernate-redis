@@ -1,14 +1,17 @@
 package net.daum.clix.hibernate.redis.region;
 
-import java.util.Properties;
-
 import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
-
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.TimestampsRegion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 public class RedisTimestampsRegion extends RedisRegion implements TimestampsRegion {
+
+	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	public RedisTimestampsRegion(RedisAccessStrategyFactory accessStrategyFactory, RedisCache cache, Properties properties) {
 		super(accessStrategyFactory, cache, properties);
@@ -16,11 +19,13 @@ public class RedisTimestampsRegion extends RedisRegion implements TimestampsRegi
 
 	@Override
 	public Object get(Object key) throws CacheException {
+		LOG.debug("called get : {}", key);
 		return cache.get(key);
 	}
 
 	@Override
 	public void put(Object key, Object value) throws CacheException {
+		LOG.debug("called put by K:{}, V:{}", key, value);
 		cache.put(key, value);
 	}
 

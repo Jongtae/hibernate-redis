@@ -6,27 +6,27 @@ import org.hibernate.cache.CacheException;
  * An interface for Redis.
  *
  * @author jtlee
- * @author onlyabout
+ * @author 84june
  */
 public interface RedisCache {
 
-	public String getRegionName();
+	String getRegionName();
 
-	public boolean exists(String key);
+	boolean exists(String key);
 
-	public Object get(Object key) throws CacheException;
+	Object get(Object key) throws CacheException;
 
-	public void put(Object key, Object value) throws CacheException;
+	void put(Object key, Object value) throws CacheException;
 
-	public void remove(Object key) throws CacheException;
+	void remove(Object key) throws CacheException;
 
-	public int getTimeout();
+	int getTimeout();
 
-	public long getSizeInMemory();
+	long getSizeInMemory();
 
-	public long getElementCountInMemory();
+	long getElementCountInMemory();
 
-	public long getElementCountOnDisk();
+	long getElementCountOnDisk();
 
-	void destroy() throws CacheException;
+	void destory();
 }

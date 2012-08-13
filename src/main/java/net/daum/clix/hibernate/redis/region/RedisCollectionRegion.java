@@ -1,16 +1,15 @@
 package net.daum.clix.hibernate.redis.region;
 
-import java.util.Properties;
-
 import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
-
 import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CollectionRegion;
 import org.hibernate.cache.access.AccessType;
 import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cfg.Settings;
+
+import java.util.Properties;
 
 public class RedisCollectionRegion extends RedisTransactionalRegion implements CollectionRegion {
 

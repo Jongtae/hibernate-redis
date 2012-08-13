@@ -2,7 +2,6 @@ package net.daum.clix.hibernate.redis.strategy;
 
 import net.daum.clix.hibernate.redis.region.RedisCollectionRegion;
 import net.daum.clix.hibernate.redis.region.RedisEntityRegion;
-
 import org.hibernate.cache.access.AccessType;
 import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cache.access.EntityRegionAccessStrategy;
@@ -31,6 +30,6 @@ public interface RedisAccessStrategyFactory {
 	 * @return the created {@link CollectionRegionAccessStrategy}
 	 */
 	public CollectionRegionAccessStrategy createCollectionRegionAccessStrategy(RedisCollectionRegion collectionRegion,
-			AccessType accessType);
+	                                                                           AccessType accessType);
 
 }

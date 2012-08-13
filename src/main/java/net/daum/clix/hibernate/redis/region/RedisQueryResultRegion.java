@@ -16,7 +16,11 @@ import org.hibernate.transform.ResultTransformer;
 import org.hibernate.type.Type;
 import org.springframework.util.StringUtils;
 
+import java.util.Properties;
+
 public class RedisQueryResultRegion extends RedisRegion implements QueryResultsRegion {
+
+	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	public RedisQueryResultRegion(RedisAccessStrategyFactory accessStrategyFactory, RedisCache cache, Properties properties) {
 		super(accessStrategyFactory, cache, properties);
@@ -24,6 +28,7 @@ public class RedisQueryResultRegion extends RedisRegion implements QueryResultsR
 
 	@Override
 	public Object get(Object key) throws CacheException {
+		LOG.debug("called get : {}", key);
 		return cache.get(key);
 	}
 

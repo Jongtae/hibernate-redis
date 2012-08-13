@@ -2,7 +2,6 @@ package net.daum.clix.hibernate.redis.strategy;
 
 import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.region.RedisTransactionalRegion;
-
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.access.SoftLock;
 import org.hibernate.cfg.Settings;
@@ -71,8 +70,6 @@ abstract class AbstractRedisAccessStrategy<T extends RedisTransactionalRegion> {
 	}
 
 	/**
-	 * TODO:: Ehcache's implementation of this function is clear whole region.(what should do?)
-	 *
 	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#unlockRegion(org.hibernate.cache.access.SoftLock)
 	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#unlockRegion(org.hibernate.cache.access.SoftLock)
 	 */
