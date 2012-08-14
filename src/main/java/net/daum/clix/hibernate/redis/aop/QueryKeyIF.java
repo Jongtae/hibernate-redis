@@ -1,5 +1,8 @@
 package net.daum.clix.hibernate.redis.aop;
 
+import org.hibernate.EntityMode;
+import org.hibernate.type.Type;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,4 +13,6 @@ package net.daum.clix.hibernate.redis.aop;
  */
 public interface QueryKeyIF {
     public Object[] getPositionalParameterValues();
+    public EntityMode getEntityMode();
+    public Type[] getPositionalParameterTypes();
 }
