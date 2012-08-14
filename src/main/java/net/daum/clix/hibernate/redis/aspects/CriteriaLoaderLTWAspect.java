@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public class CriteriaLoaderLTWAspect {
 
-	private final Logger LOG = LoggerFactory.getLogger(getClass());
-
-	@Before("execution(* org.hibernate.loader.criteria.CriteriaLoader.CriteriaLoader*(..))")
-	public void advice(JoinPoint joinPoint) {
-		LOG.debug("CriteriaLoaderAspect.advice() called on {}", joinPoint);
-//		System.out.printf("CriteriaLoaderAspect.advice() called on '%s'%n", joinPoint);
-	}
+//	private final Logger LOG = LoggerFactory.getLogger(getClass());
+//
+//	@Before("execution(* org.hibernate.loader.criteria.CriteriaLoader.CriteriaLoader*(..))")
+//	public void advice(JoinPoint joinPoint) {
+//		LOG.debug("CriteriaLoaderAspect.advice() called on {}", joinPoint);
+////		System.out.printf("CriteriaLoaderAspect.advice() called on '%s'%n", joinPoint);
+//	}
 }
