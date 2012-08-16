@@ -35,7 +35,7 @@ public abstract class RedisRegion implements Region {
 	private int cacheLockTimeout;
 
 	/**
-	 * Create a Hibernate data region backed by the given Ehcache instance.
+	 * Create a Hibernate data region backed by the given Redis instance.
 	 */
 	RedisRegion(RedisAccessStrategyFactory accessStrategyFactory, RedisCache cache, Properties properties) {
 		this.accessStrategyFactory = accessStrategyFactory;
