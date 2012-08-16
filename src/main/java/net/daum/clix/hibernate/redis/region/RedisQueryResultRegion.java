@@ -1,7 +1,5 @@
 package net.daum.clix.hibernate.redis.region;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import net.daum.clix.hibernate.redis.RedisCache;
@@ -12,7 +10,6 @@ import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.QueryResultsRegion;
-import org.hibernate.criterion.Order;
 import org.hibernate.type.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +26,7 @@ public class RedisQueryResultRegion extends RedisRegion implements QueryResultsR
 	@Override
 	public Object get(Object key) throws CacheException {
 		 if(StringUtils.startsWithIgnoreCase(cache.getRegionName(),"@Sorted")){
+			 // TODO :: ClassCastException occured when LTW doesn't work. adding a log message says running java with -javaagent:aspectjweaver.jar
 	            Object[] parameters = ((QueryKeyIF) key).getPositionalParameterValues();
 	            Type[] parameterTypes = ((QueryKeyIF) key).getPositionalParameterTypes();
 	            EntityMode entityMode = ((QueryKeyIF) key).getEntityMode();
