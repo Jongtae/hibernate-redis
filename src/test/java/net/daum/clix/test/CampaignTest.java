@@ -20,7 +20,9 @@ import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.List;
 
+import static junit.framework.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * User: jtlee
@@ -89,17 +91,15 @@ public class CampaignTest {
         Criteria criteria = session.createCriteria(Campaign.class);
         criteria.add(Restrictions.eq("name", "campaign2"));
         criteria.addOrder(Order.asc("name"));
-        criteria.setFirstResult(1);
+        criteria.setFirstResult(0);
         criteria.setMaxResults(10);
         criteria.setCacheable(true);
-        criteria.setCacheRegion("@Sorted_queryCache");
+//        criteria.setCacheRegion("@Sorted_queryCache");
         List<Campaign> campaigns = criteria.list();
 
         tx.commit();
 
-        for(Campaign campaign : campaigns){
-            System.out.println(campaign.toString());
-        }
+        assertFalse("It should not be empty",campaigns.isEmpty());
     }
 
     @Test
@@ -111,15 +111,16 @@ public class CampaignTest {
         Criteria criteria = session.createCriteria(Campaign.class);
         criteria.add(Restrictions.eq("name", "campaign2"));
         criteria.addOrder(Order.asc("name"));
-        criteria.setFirstResult(1);
+        criteria.setFirstResult(0);
         criteria.setMaxResults(10);
         criteria.setCacheable(true);
-        criteria.setCacheRegion("@Sorted_queryCache");
+//        criteria.setCacheRegion("@Sorted_queryCache");
         List<Campaign> campaigns = criteria.list();
 
-        for(Campaign campaign : campaigns){
-            System.out.println(campaign.toString());
-        }
+        tx.commit();
+
+        assertFalse("It should not be empty",campaigns.isEmpty());
+
     }
 
     @AfterClass
