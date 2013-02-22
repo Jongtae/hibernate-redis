@@ -9,6 +9,10 @@ import org.hibernate.cfg.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author jtlee
+ * @author 84june
+ */
 public class NonStrictReadWriteRedisCollectionRegionAccessStrategy extends AbstractRedisAccessStrategy<RedisCollectionRegion>
 		implements CollectionRegionAccessStrategy {
 

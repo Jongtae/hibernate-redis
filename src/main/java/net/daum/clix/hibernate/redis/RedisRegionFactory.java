@@ -12,6 +12,10 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Properties;
 
+/**
+ * @author jtlee
+ * @author 84june
+ */
 public class RedisRegionFactory extends AbstractRedisRegionFactory {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

@@ -11,6 +11,10 @@ import org.hibernate.cfg.Settings;
 
 import java.util.Properties;
 
+/**
+ * @author jtlee
+ * @author 84june
+ */
 public class RedisEntityRegion extends RedisTransactionalRegion implements EntityRegion {
 
 	public RedisEntityRegion(RedisAccessStrategyFactory accessStrategyFactory, RedisCache cache, Properties properties, CacheDataDescription metadata, Settings settings) {

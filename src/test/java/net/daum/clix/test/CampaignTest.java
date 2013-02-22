@@ -23,11 +23,9 @@ import java.util.List;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created with IntelliJ IDEA.
  * User: jtlee
  * Date: 8/10/12
  * Time: 4:29 PM
- * To change this template use File | Settings | File Templates.
  */
 @RunWith(JUnit4ClassRunner.class)
 public class CampaignTest {
