@@ -2,11 +2,11 @@ package net.daum.clix.hibernate.redis.region;
 
 import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
-import org.hibernate.cache.CacheDataDescription;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.EntityRegion;
-import org.hibernate.cache.access.AccessType;
-import org.hibernate.cache.access.EntityRegionAccessStrategy;
+import org.hibernate.cache.spi.CacheDataDescription;
+import org.hibernate.cache.spi.EntityRegion;
+import org.hibernate.cache.spi.access.AccessType;
+import org.hibernate.cache.spi.access.EntityRegionAccessStrategy;
 import org.hibernate.cfg.Settings;
 
 import java.util.Properties;

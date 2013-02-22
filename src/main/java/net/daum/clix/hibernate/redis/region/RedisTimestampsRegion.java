@@ -3,7 +3,7 @@ package net.daum.clix.hibernate.redis.region;
 import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.TimestampsRegion;
+import org.hibernate.cache.spi.TimestampsRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

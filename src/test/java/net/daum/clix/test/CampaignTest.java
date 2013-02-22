@@ -76,6 +76,8 @@ public class CampaignTest {
 
         Campaign campaign = (Campaign) session.get(Campaign.class, 1L);
 
+        tx.commit();
+
         assertNotNull(campaign);
 
     }
@@ -94,6 +96,8 @@ public class CampaignTest {
         criteria.setCacheable(true);
         criteria.setCacheRegion("@Sorted_queryCache");
         List<Campaign> campaigns = criteria.list();
+
+        tx.commit();
 
         for(Campaign campaign : campaigns){
             System.out.println(campaign.toString());

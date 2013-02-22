@@ -2,8 +2,8 @@ package net.daum.clix.hibernate.redis.region;
 
 import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
-import org.hibernate.cache.CacheDataDescription;
-import org.hibernate.cache.TransactionalDataRegion;
+import org.hibernate.cache.spi.CacheDataDescription;
+import org.hibernate.cache.spi.TransactionalDataRegion;
 import org.hibernate.cfg.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,7 +3,7 @@ package net.daum.clix.hibernate.redis.strategy;
 import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.region.RedisTransactionalRegion;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.access.SoftLock;
+import org.hibernate.cache.spi.access.SoftLock;
 import org.hibernate.cfg.Settings;
 
 
@@ -41,8 +41,6 @@ abstract class AbstractRedisAccessStrategy<T extends RedisTransactionalRegion> {
 	 * This method is a placeholder for method signatures supplied by interfaces pulled in further down the class
 	 * hierarchy.
 	 *
-	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#putFromLoad(java.lang.Object, java.lang.Object, long, java.lang.Object)
-	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#putFromLoad(java.lang.Object, java.lang.Object, long, java.lang.Object)
 	 */
 	public final boolean putFromLoad(Object key, Object value, long txTimestamp, Object version) throws CacheException {
 		return putFromLoad(key, value, txTimestamp, version, settings.isMinimalPutsEnabled());
@@ -52,8 +50,6 @@ abstract class AbstractRedisAccessStrategy<T extends RedisTransactionalRegion> {
 	 * This method is a placeholder for method signatures supplied by interfaces pulled in further down the class
 	 * hierarchy.
 	 *
-	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#putFromLoad(java.lang.Object, java.lang.Object, long, java.lang.Object, boolean)
-	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#putFromLoad(java.lang.Object, java.lang.Object, long, java.lang.Object, boolean)
 	 */
 	public abstract boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
 			throws CacheException;
@@ -62,25 +58,17 @@ abstract class AbstractRedisAccessStrategy<T extends RedisTransactionalRegion> {
 	 * Region locks are not supported.
 	 *
 	 * @return <code>null</code>
-	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#lockRegion()
-	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#lockRegion()
 	 */
 	public final SoftLock lockRegion() {
 		return null;
 	}
 
-	/**
-	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#unlockRegion(org.hibernate.cache.access.SoftLock)
-	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#unlockRegion(org.hibernate.cache.access.SoftLock)
-	 */
 	public final void unlockRegion(SoftLock lock) throws CacheException {
 	}
 
 	/**
 	 * A no-op since this is an asynchronous cache access strategy.
 	 *
-	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#remove(java.lang.Object)
-	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#remove(java.lang.Object)
 	 */
 	public void remove(Object key) throws CacheException {
 	}
@@ -88,9 +76,6 @@ abstract class AbstractRedisAccessStrategy<T extends RedisTransactionalRegion> {
 	/**
 	 * Not supported yet!! Called to evict data from the entire region
 	 *
-	 * @throws CacheException Propogated from underlying {@link org.hibernate.cache.Region}
-	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#removeAll()
-	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#removeAll()
 	 */
 	public final void removeAll() throws CacheException {
 //		region.clear();
@@ -99,8 +84,6 @@ abstract class AbstractRedisAccessStrategy<T extends RedisTransactionalRegion> {
 	/**
 	 * Remove the given mapping without regard to transactional safety
 	 *
-	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#evict(java.lang.Object)
-	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#evict(java.lang.Object)
 	 */
 	public final void evict(Object key) throws CacheException {
 		region.remove(key);
@@ -109,8 +92,6 @@ abstract class AbstractRedisAccessStrategy<T extends RedisTransactionalRegion> {
 	/**
 	 * Not Supported yet!! Remove all mappings without regard to transactional safety
 	 *
-	 * @see org.hibernate.cache.access.EntityRegionAccessStrategy#evictAll()
-	 * @see org.hibernate.cache.access.CollectionRegionAccessStrategy#evictAll()
 	 */
 	public final void evictAll() throws CacheException {
 //		region.clear();
