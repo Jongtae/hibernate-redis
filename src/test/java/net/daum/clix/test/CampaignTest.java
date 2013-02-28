@@ -89,7 +89,7 @@ public class CampaignTest {
         Transaction tx = session.beginTransaction();
 
         Criteria criteria = session.createCriteria(Campaign.class);
-        criteria.add(Restrictions.eq("name", "campaign2"));
+        criteria.add(Restrictions.like("name", "campaign%"));
         criteria.addOrder(Order.asc("name"));
         criteria.setFirstResult(0);
         criteria.setMaxResults(10);
@@ -109,7 +109,7 @@ public class CampaignTest {
         Transaction tx = session.beginTransaction();
 
         Criteria criteria = session.createCriteria(Campaign.class);
-        criteria.add(Restrictions.eq("name", "campaign2"));
+        criteria.add(Restrictions.like("name", "campaign%"));
         criteria.addOrder(Order.asc("name"));
         criteria.setFirstResult(0);
         criteria.setMaxResults(10);
@@ -121,6 +121,31 @@ public class CampaignTest {
 
         assertFalse("It should not be empty",campaigns.isEmpty());
 
+    }
+
+    @Test
+    public void testEvictCachedQuery(){
+
+        Session  session = sessionFactory.getCurrentSession();
+
+        Transaction tx = session.beginTransaction();
+
+        Campaign campaign = (Campaign) session.get(Campaign.class, 1L);
+        campaign.setName("kampaign100");
+        session.saveOrUpdate(campaign);
+
+        Criteria criteria = session.createCriteria(Campaign.class);
+        criteria.add(Restrictions.like("name", "campaign%"));
+        criteria.addOrder(Order.asc("name"));
+        criteria.setFirstResult(0);
+        criteria.setMaxResults(10);
+        criteria.setCacheable(true);
+//        criteria.setCacheRegion("@Sorted_queryCache");
+        List<Campaign> campaigns = criteria.list();
+
+        tx.rollback();
+
+        assertFalse("It should not be empty",campaigns.isEmpty());
     }
 
     @AfterClass
