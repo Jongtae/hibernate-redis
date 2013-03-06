@@ -23,27 +23,18 @@ public class ReadWriteRedisCollectionRegionAcessStrategy extends AbstractReadWri
     }
 
     @Override
-    public Object get(Object key, long txTimestamp) throws CacheException {
-        throw new NotImplementedException(); //TODO still not implemented
-    }
-
-    @Override
-    public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) throws CacheException {
-        throw new NotImplementedException(); //TODO still not implemented
+    public CollectionRegion getRegion() {
+        return region;
     }
 
     @Override
     public SoftLock lockItem(Object key, Object version) throws CacheException {
-        throw new NotImplementedException(); //TODO still not implemented
+        //Do not support client-side locking
+        return null;
     }
 
     @Override
     public void unlockItem(Object key, SoftLock lock) throws CacheException {
-        throw new NotImplementedException(); //TODO still not implemented
-    }
-
-    @Override
-    public CollectionRegion getRegion() {
-        return region;
+        //Do not support client-side locking
     }
 }

@@ -7,9 +7,6 @@ import org.springframework.core.serializer.support.SerializingConverter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-import java.io.Serializable;
-import java.util.Comparator;
-
 /**
  * @author jtlee
  * @author 84june

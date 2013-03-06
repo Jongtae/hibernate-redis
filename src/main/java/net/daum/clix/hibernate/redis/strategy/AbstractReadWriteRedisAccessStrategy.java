@@ -1,11 +1,9 @@
 package net.daum.clix.hibernate.redis.strategy;
 
-import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.region.RedisTransactionalRegion;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.spi.access.SoftLock;
 import org.hibernate.cfg.Settings;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -22,30 +20,36 @@ abstract class AbstractReadWriteRedisAccessStrategy<T extends RedisTransactional
     private final Comparator versionComparator;
 
     /**
-	 * Create an access strategy wrapping the given region.
-	 */
-	AbstractReadWriteRedisAccessStrategy(T region, Settings settings) {
-        super(region,settings);
+     * Create an access strategy wrapping the given region.
+     */
+    AbstractReadWriteRedisAccessStrategy(T region, Settings settings) {
+        super(region, settings);
         this.versionComparator = region.getCacheDataDescription().getVersionComparator();
     }
 
     public Object get(Object key, long txTimestamp) throws CacheException {
-        return cache.get(key);
+        Item item = (Item) region.get(key);
+        if (null != item && item.isReadable(txTimestamp)) {
+            return item.getValue();
+        }
+        return null;
     }
 
     public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride) throws CacheException {
 
-        if (minimalPutOverride && region.contains(key)) {
-            return false;
-        } else {
-            if (region.writeLock(key)) {
-                try {
-                    cache.put(key, value);
-                } finally {
-                    region.releaseLock(key);
+        if (region.writeLock(key)) {
+            try {
+                if (region.contains(key)) {
+                    Item item = (Item) region.get(key);
+                    if (!item.isWriteable(version, versionComparator)) {
+                        return false;
+                    }
                 }
-                return true;
+                region.put(key, new Item(version, txTimestamp, value));
+            } finally {
+                region.releaseLock(key);
             }
+            return true;
         }
         return false;
     }
@@ -60,7 +64,11 @@ abstract class AbstractReadWriteRedisAccessStrategy<T extends RedisTransactional
     public boolean afterInsert(Object key, Object value, Object version) throws CacheException {
         if (region.writeLock(key)) {
             try {
-                cache.put(key, value);
+                Item item = (Item) region.get(key);
+                if (null != item && !item.isWriteable(version, versionComparator)) {
+                    return false;
+                }
+                region.put(key, new Item(version, region.nextTimestamp(), value));
             } finally {
                 region.releaseLock(key);
             }
@@ -77,9 +85,13 @@ abstract class AbstractReadWriteRedisAccessStrategy<T extends RedisTransactional
     }
 
     public boolean afterUpdate(Object key, Object value, Object currentVersion, Object previousVersion, SoftLock lock) throws CacheException {
-        if (region.writeLock(key)){
+        if (region.writeLock(key)) {
             try {
-                cache.put(key, value);
+                Item item = (Item) region.get(key);
+                if (null != item && !item.isWriteable(currentVersion, versionComparator)) {
+                    return false;
+                }
+                region.put(key, new Item(currentVersion, region.nextTimestamp(), value));
             } finally {
                 region.releaseLock(key);
             }
@@ -88,32 +100,20 @@ abstract class AbstractReadWriteRedisAccessStrategy<T extends RedisTransactional
         return false;
     }
 
-    protected final static class WriteLock implements Serializable {
+    protected final static class Item implements Serializable {
 
         private static final long serialVersionUID = -9173693640486739767L;
-
-        private final String expiresStr;
 
         private final Object version;
 
         private final long txTimestamp;
 
-        public WriteLock(String expiresStr, Object version, long txTimestamp) {
-            this.expiresStr = expiresStr;
+        private final Object value;
+
+        public Item(Object version, long txTimestamp, Object value) {
             this.version = version;
             this.txTimestamp = txTimestamp;
-        }
-
-        public String getExpiresStr() {
-            return expiresStr;
-        }
-
-        public Object getVersion() {
-            return version;
-        }
-
-        public long getTxTimestamp() {
-            return txTimestamp;
+            this.value = value;
         }
 
         public boolean isReadable(long txTimestamp) {
@@ -121,7 +121,7 @@ abstract class AbstractReadWriteRedisAccessStrategy<T extends RedisTransactional
         }
 
         public boolean isWriteable(Object newVersion, Comparator versionComparator) {
-            return version != null && versionComparator.compare( version, newVersion ) < 0;
+            return version != null && versionComparator.compare(version, newVersion) < 0;
         }
 
         @Override
@@ -129,20 +129,27 @@ abstract class AbstractReadWriteRedisAccessStrategy<T extends RedisTransactional
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            WriteLock writeLock = (WriteLock) o;
+            Item item = (Item) o;
 
-            if (!expiresStr.equals(writeLock.expiresStr)) return false;
-            if (version != null ? !version.equals(writeLock.version) : writeLock.version != null) return false;
+            if (txTimestamp != item.txTimestamp) return false;
+            if (!value.equals(item.value)) return false;
+            if (version != null ? !version.equals(item.version) : item.version != null) return false;
 
             return true;
         }
 
         @Override
         public int hashCode() {
-            int result = expiresStr.hashCode();
-            result = 31 * result + (version != null ? version.hashCode() : 0);
+            int result = version != null ? version.hashCode() : 0;
+            result = 31 * result + (int) (txTimestamp ^ (txTimestamp >>> 32));
+            result = 31 * result + value.hashCode();
             return result;
         }
+
+        public Object getValue() {
+            return value;
+        }
+
     }
 }
 
