@@ -46,7 +46,7 @@ public class ReadOnlyRedisCollectionRegionAccessStrategy extends AbstractRedisAc
 	public boolean putFromLoad(Object key, Object value, long txTimestamp, Object version, boolean minimalPutOverride)
 			throws CacheException {
 		LOG.debug("called putFromLoad by K:{}, V:{}", key, value);
-		if (region.contains(key)) {
+		if (minimalPutOverride && region.contains(key)) {
 			return false;
 		} else {
 			cache.put(key, value);
