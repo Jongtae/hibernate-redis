@@ -1,5 +1,6 @@
 package net.daum.clix.hibernate.redis;
 
+import net.daum.clix.hibernate.redis.jedis.JedisLock;
 import org.hibernate.cache.CacheException;
 
 /**
@@ -29,4 +30,8 @@ public interface RedisCache {
 	long getElementCountOnDisk();
 
 	void destory();
+
+    boolean lock(Object key, Long expireMsecs) throws InterruptedException;
+
+    void unlock(Object key);
 }

@@ -16,7 +16,7 @@ import javax.persistence.Id;
  * To change this template use File | Settings | File Templates.
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 public class Campaign {
     private Long seq;

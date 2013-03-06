@@ -115,4 +115,16 @@ public abstract class RedisRegion implements Region {
 	public boolean contains(Object key) {
 		return cache.exists(key.toString());
 	}
+
+    public boolean writeLock(Object key){
+        try {
+            return cache.lock(key, 1000L);
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
+
+    public void releaseLock(Object key){
+        cache.unlock(key);
+    }
 }

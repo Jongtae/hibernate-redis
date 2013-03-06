@@ -150,9 +150,9 @@ public class CampaignTest {
 
     @AfterClass
     public static void tearDown(){
-        JedisPool pool = new JedisPool(new JedisPoolConfig(), "localhost");
-        Jedis jedis = pool.getResource();
-        jedis.flushDB();
+//        JedisPool pool = new JedisPool(new JedisPoolConfig(), "localhost");
+//        Jedis jedis = pool.getResource();
+//        jedis.flushDB();
     }
 
 }

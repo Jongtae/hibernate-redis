@@ -25,7 +25,9 @@ public class RedisAccessStrategyFactoryImpl implements RedisAccessStrategyFactor
 			return new ReadOnlyRedisEntityRegionAccessStrategy(entityRegion, entityRegion.getSettings());
 		} else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {
 			return new NonStrictReadWriteRedisEntityRegionAccessStrategy(entityRegion, entityRegion.getSettings());
-		}
+		} else if (AccessType.READ_WRITE.equals(accessType)){
+            return new ReadWriteRedisEntityRegionAcessStrategy(entityRegion, entityRegion.getSettings());
+        }
 
 		throw new UnsupportedOperationException("Hibernate-redis supports READ_ONLY and NONSTRICT_READ_WRITE as concurrency strategies only.");
 	}
@@ -37,7 +39,9 @@ public class RedisAccessStrategyFactoryImpl implements RedisAccessStrategyFactor
 			return new ReadOnlyRedisCollectionRegionAccessStrategy(collectionRegion, collectionRegion.getSettings());
 		} else if (AccessType.NONSTRICT_READ_WRITE.equals(accessType)) {
 			return new NonStrictReadWriteRedisCollectionRegionAccessStrategy(collectionRegion, collectionRegion.getSettings());
-		}
+		} else if (AccessType.READ_WRITE.equals(accessType)) {
+            return new ReadWriteRedisCollectionRegionAcessStrategy(collectionRegion, collectionRegion.getSettings());
+        }
 
 		throw new UnsupportedOperationException("Hibernate-redis supports READ_ONLY and NONSTRICT_READ_WRITE as concurrency strategies only.");
 	}

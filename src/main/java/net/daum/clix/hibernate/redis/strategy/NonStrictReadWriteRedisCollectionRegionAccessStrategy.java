@@ -58,8 +58,8 @@ public class NonStrictReadWriteRedisCollectionRegionAccessStrategy extends Abstr
 	 * Since this is a non-strict read/write strategy item locking is not used.
 	 */
 	public void unlockItem(Object key, SoftLock lock) throws CacheException {
-		LOG.debug("called unlockItem K:{}", key);
-		region.remove(key);
+//		LOG.debug("called unlockItem K:{}", key);
+//		region.remove(key);
 	}
 
 	/**
