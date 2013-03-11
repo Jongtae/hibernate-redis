@@ -11,6 +11,23 @@
     <url>https://github.com/Jongtae/hibernate-redis</url>
     <description>A library for using Redis as a second level distributed cache in Hibernate.</description>
 
+    <developers>
+        <developer>
+            <name>Jongtae Lee</name>
+            <email>jt.jongtae@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Jongjin Han</name>
+            <email>84june@gmail.com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:jongtae/hibernate-redis.git</connection>
+        <url>scm:git:git@github.com:jongtae/hibernate-redis.git</url>
+        <developerConnection>scm:git:git@github.com:jongtae/hibernate-redis.git</developerConnection>
+    </scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -36,9 +53,9 @@
             <version>4.1.2.Final</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.hibernate</groupId>-->
-            <!--<artifactId>hibernate-ehcache</artifactId>-->
-            <!--<version>4.1.9.Final</version>-->
+        <!--<groupId>org.hibernate</groupId>-->
+        <!--<artifactId>hibernate-ehcache</artifactId>-->
+        <!--<version>4.1.9.Final</version>-->
         <!--</dependency>-->
         <!-- Aspectj -->
         <dependency>
@@ -146,6 +163,12 @@
                     </argLine>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
         </plugins>
+
     </build>
 </project>

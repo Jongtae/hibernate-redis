@@ -1,6 +1,5 @@
 package net.daum.clix.hibernate.redis;
 
-import net.daum.clix.hibernate.redis.jedis.JedisLock;
 import org.hibernate.cache.CacheException;
 
 /**
