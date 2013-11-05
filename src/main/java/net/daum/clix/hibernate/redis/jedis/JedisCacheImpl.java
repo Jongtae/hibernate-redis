@@ -6,6 +6,7 @@ import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 /**
  * @author jtlee
@@ -13,29 +14,32 @@ import redis.clients.jedis.JedisPool;
  */
 public class JedisCacheImpl implements RedisCache {
 
-    private JedisPool jedisPool;
-
-    private Jedis jedis;
+    private JedisPool pool;
 
     private String regionName;
     private boolean locked = false;
 
-    public JedisCacheImpl(JedisPool jedisPool, String regionName) {
-        this.jedisPool = jedisPool;
+    public JedisCacheImpl(JedisPool pool, String regionName) {
+        this.pool = pool;
         this.regionName = regionName;
-        this.jedis = jedisPool.getResource();
     }
 
     @Override
     public Object get(Object key) throws CacheException {
         Object o = null;
 
-        byte[] k = serializeObject(key.toString());
-        byte[] v = jedis.get(k);
-        if (v != null && v.length > 0) {
-            o = deserializeObject(v);
+        Jedis jedis = pool.getResource();
+        try {
+            byte[] k = serializeObject(key.toString());
+            byte[] v = jedis.get(k);
+            if (v != null && v.length > 0) {
+                o = deserializeObject(v);
+            }
+        } catch (JedisConnectionException e) {
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
         }
-
         return o;
     }
 
@@ -44,17 +48,39 @@ public class JedisCacheImpl implements RedisCache {
         byte[] k = serializeObject(key.toString());
         byte[] v = serializeObject(value);
 
-        jedis.set(k, v);
+        Jedis jedis = pool.getResource();
+        try {
+            jedis.set(k, v);
+        } catch (JedisConnectionException e) {
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
+        }
     }
 
     @Override
     public void remove(Object key) throws CacheException {
-        jedis.del(serializeObject(key.toString()));
+        Jedis jedis = pool.getResource();
+        try {
+            jedis.del(serializeObject(key.toString()));
+        } catch (JedisConnectionException e) {
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
+        }
     }
 
     @Override
     public boolean exists(String key) {
-        return jedis.exists(serializeObject(key.toString()));
+        Jedis jedis = pool.getResource();
+        try {
+            return jedis.exists(serializeObject(key.toString()));
+        } catch (JedisConnectionException e) {
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
+        }
+        return false;
     }
 
     @Override
@@ -84,7 +110,6 @@ public class JedisCacheImpl implements RedisCache {
 
     @Override
     public void destory() {
-        jedisPool.returnResource(jedis);
     }
 
     private byte[] serializeObject(Object obj) {
@@ -104,26 +129,34 @@ public class JedisCacheImpl implements RedisCache {
         long expires = System.currentTimeMillis() + expireMsecs + 1;
         String expiresStr = String.valueOf(expires);
 
-        while (timeout >= 0) {
+        Jedis jedis = pool.getResource();
+        try {
 
-            if (jedis.setnx(lockKey, expiresStr) == 1) {
-                locked = true;
-                return true;
-            }
+            while (timeout >= 0) {
 
-            String currentValueStr = jedis.get(lockKey);
-            if (currentValueStr != null && Long.parseLong(currentValueStr) < System.currentTimeMillis()) {
-                // lock is expired
-
-                String oldValueStr = jedis.getSet(lockKey, expiresStr);
-                if (oldValueStr != null && oldValueStr.equals(currentValueStr)) {
-                    // lock acquired
+                if (jedis.setnx(lockKey, expiresStr) == 1) {
                     locked = true;
                     return true;
                 }
+
+                String currentValueStr = jedis.get(lockKey);
+                if (currentValueStr != null && Long.parseLong(currentValueStr) < System.currentTimeMillis()) {
+                    // lock is expired
+
+                    String oldValueStr = jedis.getSet(lockKey, expiresStr);
+                    if (oldValueStr != null && oldValueStr.equals(currentValueStr)) {
+                        // lock acquired
+                        locked = true;
+                        return true;
+                    }
+                }
+                timeout -= 100;
+                Thread.sleep(100);
             }
-            timeout -= 100;
-            Thread.sleep(100);
+        } catch (JedisConnectionException e) {
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
         }
         return false;
     }
@@ -131,7 +164,14 @@ public class JedisCacheImpl implements RedisCache {
     @Override
     public void unlock(Object key) {
         if (locked) {
-            jedis.del(generateLockKey(key));
+            Jedis jedis = pool.getResource();
+            try {
+                jedis.del(generateLockKey(key));
+            } catch (JedisConnectionException e) {
+                pool.returnBrokenResource(jedis);
+            } finally {
+                pool.returnResource(jedis);
+            }
             locked = false;
         }
     }
