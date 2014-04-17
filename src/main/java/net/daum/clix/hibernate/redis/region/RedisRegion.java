@@ -4,8 +4,6 @@ import net.daum.clix.hibernate.redis.RedisCache;
 import net.daum.clix.hibernate.redis.strategy.RedisAccessStrategyFactory;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.spi.Region;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +14,6 @@ import java.util.Properties;
  * @author 84june
  */
 public abstract class RedisRegion implements Region {
-
-	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	private static final String CACHE_LOCK_TIMEOUT_PROPERTY = "net.daum.clix.hibernate.redis.cache_lock_timeout";
 	private static final int DEFAULT_CACHE_LOCK_TIMEOUT = 1000;
@@ -126,7 +122,7 @@ public abstract class RedisRegion implements Region {
 
     public boolean writeLock(Object key){
         try {
-            return cache.lock(key, 1000L);
+            return cache.lock(key, getTimeout());
         } catch (InterruptedException e) {
             return false;
         }

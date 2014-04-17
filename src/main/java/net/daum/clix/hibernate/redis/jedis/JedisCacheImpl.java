@@ -22,8 +22,6 @@ public class JedisCacheImpl implements RedisCache {
 
     private String regionName;
 
-    private boolean locked = false;
-
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public JedisCacheImpl(JedisPool jedisPool, String regionName) {
@@ -82,28 +80,8 @@ public class JedisCacheImpl implements RedisCache {
     }
 
     @Override
-    public int getTimeout() {
-        return 0;
-    }
-
-    @Override
     public String getRegionName() {
         return this.regionName;
-    }
-
-    @Override
-    public long getSizeInMemory() {
-        return -1;
-    }
-
-    @Override
-    public long getElementCountInMemory() {
-        return -1;
-    }
-
-    @Override
-    public long getElementCountOnDisk() {
-        return -1;
     }
 
     @Override
@@ -121,18 +99,17 @@ public class JedisCacheImpl implements RedisCache {
         return dc.convert(b);
     }
 
-    public boolean lock(Object key, Long expireMsecs) throws InterruptedException {
+    public boolean lock(Object key, Integer expireMsecs) throws InterruptedException {
 
-        int timeout = getTimeout();
         String lockKey = generateLockKey(key);
         long expires = System.currentTimeMillis() + expireMsecs + 1;
         String expiresStr = String.valueOf(expires);
+        long timeout = expireMsecs;
 
         while (timeout >= 0) {
 
             try {
                 if (jedis.setnx(lockKey, expiresStr) == 1) {
-                    locked = true;
                     return true;
                 }
 
@@ -143,13 +120,14 @@ public class JedisCacheImpl implements RedisCache {
                     String oldValueStr = jedis.getSet(lockKey, expiresStr);
                     if (oldValueStr != null && oldValueStr.equals(currentValueStr)) {
                         // lock acquired
-                        locked = true;
                         return true;
                     }
                 }
             } catch (JedisConnectionException e) {
                 logger.error(key.toString(), e);
+                return false;
             }
+            logger.info("{} is now locking and waiting for unlock", key.toString());
             timeout -= 100;
             Thread.sleep(100);
         }
@@ -158,10 +136,7 @@ public class JedisCacheImpl implements RedisCache {
 
     @Override
     public void unlock(Object key) {
-        if (locked) {
-            jedis.del(generateLockKey(key));
-            locked = false;
-        }
+        jedis.del(generateLockKey(key));
     }
 
     private String generateLockKey(Object key) {

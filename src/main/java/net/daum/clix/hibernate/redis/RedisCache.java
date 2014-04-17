@@ -20,17 +20,9 @@ public interface RedisCache {
 
 	void remove(Object key) throws CacheException;
 
-	int getTimeout();
-
-	long getSizeInMemory();
-
-	long getElementCountInMemory();
-
-	long getElementCountOnDisk();
-
 	void destory();
 
-    boolean lock(Object key, Long expireMsecs) throws InterruptedException;
+    boolean lock(Object key, Integer expireMsecs) throws InterruptedException;
 
     void unlock(Object key);
 }
