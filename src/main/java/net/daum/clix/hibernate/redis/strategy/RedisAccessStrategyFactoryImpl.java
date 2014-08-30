@@ -19,7 +19,7 @@ public class RedisAccessStrategyFactoryImpl implements RedisAccessStrategyFactor
 
 	@Override
 	public EntityRegionAccessStrategy createEntityRegionAccessStrategy(RedisEntityRegion entityRegion, AccessType accessType) {
-		LOG.debug("called createEntityRegionAccessStrategy by accessType:{}", accessType);
+		LOG.debug("called createEntityRegionAccessStrategy by accessType:{} and entityRegion:{}", accessType, entityRegion.getName());
 
 		if (AccessType.READ_ONLY.equals(accessType)) {
 			return new ReadOnlyRedisEntityRegionAccessStrategy(entityRegion, entityRegion.getSettings());
