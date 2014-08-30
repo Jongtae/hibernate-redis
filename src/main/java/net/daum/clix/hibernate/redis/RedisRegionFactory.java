@@ -30,7 +30,10 @@ public class RedisRegionFactory extends AbstractRedisRegionFactory {
         this.settings = settings;
         this.properties = properties;
         logger.info("Initializing RedisClient(Jedis)...");
-        this.pool = new JedisPool(new JedisPoolConfig(), properties.getProperty("redis.host", "localhost"),
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        jedisPoolConfig.setMaxActive(Integer.valueOf(properties.getProperty("redis.max_active", "8")));
+        logger.info("Using maximum "+jedisPoolConfig.getMaxActive()+" connections");
+        this.pool = new JedisPool(jedisPoolConfig, properties.getProperty("redis.host", "localhost"),
                 Integer.valueOf(properties.getProperty("redis.port", String.valueOf(Protocol.DEFAULT_PORT))),
                 Integer.valueOf(properties.getProperty("redis.timeout",String.valueOf(Protocol.DEFAULT_TIMEOUT))),
                 properties.getProperty("redis.password",null));

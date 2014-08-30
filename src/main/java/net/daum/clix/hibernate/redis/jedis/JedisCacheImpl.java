@@ -16,36 +16,32 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
  */
 public class JedisCacheImpl implements RedisCache {
 
-    private JedisPool jedisPool;
-
-    private Jedis jedis;
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private JedisPool pool;
     private String regionName;
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
-    public JedisCacheImpl(JedisPool jedisPool, String regionName) {
-        this.jedisPool = jedisPool;
+    public JedisCacheImpl(JedisPool pool, String regionName) {
+        this.pool = pool;
         this.regionName = regionName;
-        this.jedis = jedisPool.getResource();
     }
 
     @Override
     public Object get(Object key) throws CacheException {
         Object o = null;
 
-        byte[] k = serializeObject(key.toString());
+        Jedis jedis = pool.getResource();
         try {
+            byte[] k = serializeObject(key.toString());
             byte[] v = jedis.get(k);
             if (v != null && v.length > 0) {
                 o = deserializeObject(v);
             }
-
-            return o;
         } catch (JedisConnectionException e) {
-            logger.error(key.toString(), e);
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
         }
-        return null;
+        return o;
     }
 
     @Override
@@ -53,28 +49,37 @@ public class JedisCacheImpl implements RedisCache {
         byte[] k = serializeObject(key.toString());
         byte[] v = serializeObject(value);
 
+        Jedis jedis = pool.getResource();
         try {
             jedis.set(k, v);
         } catch (JedisConnectionException e) {
-            logger.error(key.toString(), e);
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
         }
     }
 
     @Override
     public void remove(Object key) throws CacheException {
+        Jedis jedis = pool.getResource();
         try {
             jedis.del(serializeObject(key.toString()));
         } catch (JedisConnectionException e) {
-            logger.error(key.toString(), e);
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
         }
     }
 
     @Override
     public boolean exists(String key) {
+        Jedis jedis = pool.getResource();
         try {
-            return jedis.exists(serializeObject(key));
+            return jedis.exists(serializeObject(key.toString()));
         } catch (JedisConnectionException e) {
-            logger.error(key, e);
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
         }
         return false;
     }
@@ -86,7 +91,6 @@ public class JedisCacheImpl implements RedisCache {
 
     @Override
     public void destory() {
-        jedisPool.returnResource(jedis);
     }
 
     private byte[] serializeObject(Object obj) {
@@ -105,10 +109,10 @@ public class JedisCacheImpl implements RedisCache {
         long expires = System.currentTimeMillis() + expireMsecs + 1;
         String expiresStr = String.valueOf(expires);
         long timeout = expireMsecs;
+        Jedis jedis = pool.getResource();
+        try {
+            while (timeout >= 0) {
 
-        while (timeout >= 0) {
-
-            try {
                 if (jedis.setnx(lockKey, expiresStr) == 1) {
                     return true;
                 }
@@ -123,20 +127,27 @@ public class JedisCacheImpl implements RedisCache {
                         return true;
                     }
                 }
-            } catch (JedisConnectionException e) {
-                logger.error(key.toString(), e);
-                return false;
+                timeout -= 100;
+                Thread.sleep(100);
             }
-            logger.info("{} is now locking and waiting for unlock", key.toString());
-            timeout -= 100;
-            Thread.sleep(100);
+        } catch (JedisConnectionException e) {
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
         }
         return false;
     }
 
     @Override
     public void unlock(Object key) {
-        jedis.del(generateLockKey(key));
+        Jedis jedis = pool.getResource();
+        try {
+            jedis.del(generateLockKey(key));
+        } catch (JedisConnectionException e) {
+            pool.returnBrokenResource(jedis);
+        } finally {
+            pool.returnResource(jedis);
+        }
     }
 
     private String generateLockKey(Object key) {
